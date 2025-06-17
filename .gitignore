@@ -1,0 +1,9 @@
+# Ignore all bin and obj folders
+**/bin/
+**/obj/
+
+# Ignore DLLs and other build outputs
+*.dll
+*.pdb
+*.exe
+*.log

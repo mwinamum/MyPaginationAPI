@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\Kodak\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\Kodak\\.nuget\\packages"
-    ]
-  }
-}
