@@ -58,7 +58,6 @@ namespace MyPaginationAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseRouting();
 
             // 🟢 Apply CORS policy BEFORE Authorization
             app.UseCors("AllowReactApp");

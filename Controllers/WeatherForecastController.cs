@@ -32,22 +32,48 @@ namespace MyPaginationAPI.Controllers
         public IActionResult Get(int pageNumber = 1, int pageSize = 2)
         {
             var rng = new Random();
-            var allForecasts = Enumerable.Range(1, 20).Select(index => new WeatherForecast
+            var allForecasts = Enumerable.Range(1, 2000).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
                 Summary = Summaries[rng.Next(Summaries.Length)]
             }).ToList();
 
-            // generate the below implementation as a class and to use it as such       
-
-            var pagedForecasts = allForecasts
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            // generate the below implementation as a class and to use it as such
+            var paginator = new Paginator<WeatherForecast>(allForecasts, pageNumber, pageSize);
+            var pagedForecasts = paginator.GetPagedResult();
 
             return Ok(pagedForecasts);
         }
-
     }
 }
+
+// Simple paginator class for demonstration
+// This can be moved to a separate file for better organization
+// Paginator.cs
+// move this class to a separate file in the same namespace
+namespace MyPaginationAPI
+{
+    public class Paginator<T>
+    {
+        private readonly IEnumerable<T> _source;
+        private readonly int _pageNumber;
+        private readonly int _pageSize;
+
+        public Paginator(IEnumerable<T> source, int pageNumber, int pageSize)
+        {
+            _source = source;
+            _pageNumber = pageNumber;
+            _pageSize = pageSize;
+        }
+
+        public List<T> GetPagedResult()
+        {
+            return _source
+                .Skip((_pageNumber - 1) * _pageSize)
+                .Take(_pageSize)
+                .ToList();
+        }
+    }
+}
+
