@@ -7,9 +7,14 @@ using Microsoft.Extensions.Logging;
 
 namespace MyPaginationAPI.Controllers
 {
+    public interface IWeatherForecastController
+    {
+        IActionResult Get(global::System.Int32 pageNumber = 1, global::System.Int32 pageSize = 2);
+    }
+
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class WeatherForecastController : ControllerBase, IWeatherForecastController
     {
         private static readonly string[] Summaries = new[]
         {
@@ -43,6 +48,6 @@ namespace MyPaginationAPI.Controllers
 
             return Ok(pagedForecasts);
         }
-        
+
     }
 }

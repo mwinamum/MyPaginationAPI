@@ -12,7 +12,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
-
 namespace MyPaginationAPI
 {
     public class Startup
@@ -59,12 +58,12 @@ namespace MyPaginationAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseRouting();
 
-            app.UseAuthorization();
-
-             // 🟢 Apply CORS policy BEFORE endpoints
+            // 🟢 Apply CORS policy BEFORE Authorization
             app.UseCors("AllowReactApp");
 
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
