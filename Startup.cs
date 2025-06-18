@@ -40,6 +40,10 @@ namespace MyPaginationAPI
                     policy.WithOrigins("http://localhost:3000")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
+
+                        policy.WithOrigins("https://mypaginationreact.onrender.com")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
             });
 
