@@ -54,11 +54,18 @@ namespace MyPaginationAPI.Controllers
 // move this class to a separate file in the same namespace
 namespace MyPaginationAPI
 {
-    public class Paginator<T>(IEnumerable<T> source, int pageNumber, int pageSize)
+    public class Paginator<T>
     {
-        private readonly IEnumerable<T> _source = source;
-        private readonly int _pageNumber = pageNumber;
-        private readonly int _pageSize = pageSize;
+        private readonly IEnumerable<T> _source;
+        private readonly int _pageNumber;
+        private readonly int _pageSize;
+
+        public Paginator(IEnumerable<T> source, int pageNumber, int pageSize)
+        {
+            _source = source;
+            _pageNumber = pageNumber;
+            _pageSize = pageSize;
+        }
 
         public List<T> GetPagedResult()
         {
