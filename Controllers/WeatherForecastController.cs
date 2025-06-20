@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace MyPaginationAPI.Controllers
 {
+    /// <summary>
+    /// Controller for handling weather forecast requests with pagination support.
+    /// </summary>
+    /// <remarks>
+    /// This controller provides an endpoint to retrieve weather forecast data in a paginated format.
+    /// The <see cref="Get"/> method allows clients to specify the page number and page size for the results.
+    /// </remarks>
     public interface IWeatherForecastController
     {
-        IActionResult Get(global::System.Int32 pageNumber = 1, global::System.Int32 pageSize = 2);
+        IActionResult Get(int pageNumber = 1, int pageSize = 2);
     }
 
     [ApiController]
@@ -21,6 +27,21 @@ namespace MyPaginationAPI.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
+        private static readonly List<WeatherForecast> _forecasts;
+        private static int _nextId = 1;
+
+        static WeatherForecastController()
+        {
+            var rng = new Random();
+            _forecasts = Enumerable.Range(1, 2000).Select(index => new WeatherForecast
+            {
+                Id = _nextId++,
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = rng.Next(-20, 55),
+                Summary = Summaries[rng.Next(Summaries.Length)]
+            }).ToList();
+        }
+
         private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
@@ -31,49 +52,44 @@ namespace MyPaginationAPI.Controllers
         [HttpGet]
         public IActionResult Get(int pageNumber = 1, int pageSize = 2)
         {
-            var rng = new Random();
-            var allForecasts = Enumerable.Range(1, 2000).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            }).ToList();
-
-            // generate the below implementation as a class and to use it as such
-            var paginator = new Paginator<WeatherForecast>(allForecasts, pageNumber, pageSize);
+            var paginator = new Paginator<WeatherForecast>(_forecasts, pageNumber, pageSize);
             var pagedForecasts = paginator.GetPagedResult();
-
             return Ok(pagedForecasts);
         }
-    }
-}
 
-// Simple paginator class for demonstration
-// This can be moved to a separate file for better organization
-// Paginator.cs
-// move this class to a separate file in the same namespace
-namespace MyPaginationAPI
-{
-    public class Paginator<T>
-    {
-        private readonly IEnumerable<T> _source;
-        private readonly int _pageNumber;
-        private readonly int _pageSize;
-
-        public Paginator(IEnumerable<T> source, int pageNumber, int pageSize)
+        /// <summary>
+        /// Adds a new weather forecast entry.
+        /// </summary>
+        [HttpPost]
+        public IActionResult Add([FromBody] WeatherForecast forecast)
         {
-            _source = source;
-            _pageNumber = pageNumber;
-            _pageSize = pageSize;
+            if (forecast == null)
+                return BadRequest("Forecast cannot be null.");
+
+            forecast.Id = _nextId++;
+            _forecasts.Add(forecast);
+            return CreatedAtAction(nameof(Get), new { }, forecast);
         }
 
-        public List<T> GetPagedResult()
+        /// <summary>
+        /// Updates an existing weather forecast entry.
+        /// </summary>
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] WeatherForecast forecast)
         {
-            return _source
-                .Skip((_pageNumber - 1) * _pageSize)
-                .Take(_pageSize)
-                .ToList();
+            if (forecast == null)
+                return BadRequest("Forecast cannot be null.");
+
+            var existing = _forecasts.FirstOrDefault(f => f.Id == id);
+            if (existing == null)
+                return NotFound();
+
+            // Update properties
+            existing.Date = forecast.Date;
+            existing.TemperatureC = forecast.TemperatureC;
+            existing.Summary = forecast.Summary;
+
+            return Ok(existing);
         }
     }
 }
-
