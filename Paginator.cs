@@ -10,32 +10,36 @@ namespace MyPaginationAPI
     /// <typeparam name="T">The type of items to paginate.</typeparam>
     public class Paginator<T>
     {
-        private readonly IEnumerable<T> _source;
-        private readonly int _pageNumber;
-        private readonly int _pageSize;
+        private readonly IReadOnlyCollection<T> _source;
+        public int PageNumber { get; }
+        public int PageSize { get; }
 
         public Paginator(IEnumerable<T> source, int pageNumber, int pageSize)
         {
-            _source = source ?? throw new ArgumentNullException(nameof(source));
-            _pageNumber = pageNumber < 1 ? 1 : pageNumber;
-            _pageSize = pageSize < 1 ? 10 : pageSize;
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            _source = source as IReadOnlyCollection<T> ?? source.ToList();
+            PageNumber = pageNumber < 1 ? 1 : pageNumber;
+            PageSize = pageSize < 1 ? 10 : pageSize;
         }
 
         public PagedResult<T> GetPagedResult()
         {
-            var totalItems = _source.Count();
+            var totalItems = _source.Count;
+            var totalPages = totalItems == 0 ? 1 : (int)Math.Ceiling(totalItems / (double)PageSize);
+            var pageNumber = Math.Min(PageNumber, totalPages);
+
             var items = _source
-                .Skip((_pageNumber - 1) * _pageSize)
-                .Take(_pageSize)
+                .Skip((pageNumber - 1) * PageSize)
+                .Take(PageSize)
                 .ToList();
 
             return new PagedResult<T>
             {
                 Items = items,
-                PageNumber = _pageNumber,
-                PageSize = _pageSize,
+                PageNumber = pageNumber,
+                PageSize = PageSize,
                 TotalItems = totalItems,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)_pageSize)
+                TotalPages = totalPages
             };
         }
     }

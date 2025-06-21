@@ -7,3 +7,6 @@
 *.pdb
 *.exe
 *.log
+
+# Ignore .vs
+.vs/

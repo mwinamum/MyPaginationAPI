@@ -28,26 +28,26 @@ namespace MyPaginationAPI.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private static readonly List<WeatherForecast> _forecasts;
-        private static int _nextId = 1;
-
-        static WeatherForecastController()
-        {
-            var rng = new Random();
-            _forecasts = Enumerable.Range(1, 2000).Select(index => new WeatherForecast
-            {
-                Id = _nextId++,
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            }).ToList();
-        }
-
+        private readonly List<WeatherForecast> _forecasts;
+        private int _nextId;
         private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
+            _forecasts = new List<WeatherForecast>();
+            var rng = new Random();
+            _nextId = 1;
+            for (int index = 1; index <= 2000; index++)
+            {
+                _forecasts.Add(new WeatherForecast
+                {
+                    Id = _nextId++,
+                    Date = DateTime.Now.AddDays(index),
+                    TemperatureC = rng.Next(-20, 55),
+                    Summary = Summaries[rng.Next(Summaries.Length)]
+                });
+            }
         }
 
         [HttpGet]
